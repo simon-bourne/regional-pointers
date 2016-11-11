@@ -38,9 +38,9 @@ source-repository head
 
 Library
   GHC-Options: -Wall -Werror
-  build-depends: base                 >= 4.7   && < 4.8
-               , regions              >= 0.12  && < 0.13
-               , transformers-base    >= 0.4   && < 0.5
+  build-depends: base                 >= 4.7
+               , regions              >= 0.12
+               , transformers-base    >= 0.4
   exposed-modules: Foreign.Ptr.Region
                    Foreign.Ptr.Region.Unsafe
                    Foreign.Marshal.Alloc.Region
