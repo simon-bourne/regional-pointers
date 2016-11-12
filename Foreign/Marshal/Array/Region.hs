@@ -71,10 +71,9 @@ import System.IO                              ( IO )
 
 -- from transformers-base:
 import Control.Monad.Base                     ( MonadBase, liftBase )
-
+import Control.Monad.IO.Class                 ( MonadIO )
 -- from regions:
 import Control.Monad.Trans.Region             ( RegionT
-                                              , RegionBaseControl
                                               , AncestorRegion
                                               , LocalRegion, Local
                                               )
@@ -103,19 +102,19 @@ import Foreign.Marshal.Utils.Region           ( new, with )
 -- | Allocate storage for the given number of elements of a storable type.
 --
 -- Like 'malloc', but for multiple elements.
-mallocArray :: (region ~ RegionT s pr, RegionBaseControl IO pr, Storable a)
+mallocArray :: (region ~ RegionT s pr, RegionIOControl pr, MonadBase IO pr, Storable a)
             => Int -> region (RegionalPtr a region)
 mallocArray = wrapMalloc . FMA.mallocArray
 
 -- | Like 'mallocArray', but add an extra position to hold a special termination
 -- element.
-mallocArray0 :: (region ~ RegionT s pr, RegionBaseControl IO pr, Storable a)
+mallocArray0 :: (region ~ RegionT s pr, RegionIOControl pr, MonadBase IO pr, Storable a)
              => Int -> region (RegionalPtr a region)
 mallocArray0 = wrapMalloc . FMA.mallocArray0
 
 -- | Temporarily allocate space for the given number of elements (like 'alloca',
 -- but for multiple elements).
-allocaArray :: (Storable a, RegionBaseControl IO pr)
+allocaArray :: (Storable a, RegionIOControl pr, MonadBase IO pr)
             => Int
             -> (forall sl. LocalPtr a (LocalRegion sl s)
                -> RegionT (Local s) pr b)
@@ -124,7 +123,7 @@ allocaArray = wrapAlloca . FMA.allocaArray
 
 -- | Like 'allocaArray', but add an extra position to hold a special termination
 -- element.
-allocaArray0 :: (Storable a, RegionBaseControl IO pr)
+allocaArray0 :: (Storable a, RegionIOControl pr, MonadBase IO pr)
              => Int
              -> (forall sl. LocalPtr a (LocalRegion sl s)
                 -> RegionT (Local s) pr b)
@@ -190,20 +189,20 @@ pokeArray0 m rp xs = liftBase $ FMA.pokeArray0 m (unsafePtr rp) xs
 -- sequence of storable values.
 --
 -- Like 'new', but for multiple elements.
-newArray :: (region ~ RegionT s pr, RegionBaseControl IO pr, Storable a)
+newArray :: (region ~ RegionT s pr, RegionIOControl pr, MonadBase IO pr, Storable a)
          => [a] -> region (RegionalPtr a region)
 newArray = wrapMalloc . FMA.newArray
 
 -- | Write a list of storable elements into a newly allocated, consecutive
 -- sequence of storable values, where the end is fixed by the given end marker.
-newArray0 :: (region ~ RegionT s pr, RegionBaseControl IO pr, Storable a)
+newArray0 :: (region ~ RegionT s pr, RegionIOControl pr, MonadBase IO pr, Storable a)
           => a -> [a] -> region (RegionalPtr a region)
 newArray0 marker vals = wrapMalloc (FMA.newArray0 marker vals)
 
 -- | Temporarily store a list of storable values in memory.
 --
 -- Like 'with', but for multiple elements.
-withArray :: (Storable a, RegionBaseControl IO pr)
+withArray :: (Storable a, RegionIOControl pr, MonadBase IO pr)
           => [a]
           -> (forall sl. LocalPtr a (LocalRegion sl s)
              -> RegionT (Local s) pr b)
@@ -211,7 +210,7 @@ withArray :: (Storable a, RegionBaseControl IO pr)
 withArray = wrapAlloca . FMA.withArray
 
 -- | Like 'withArray', but a terminator indicates where the array ends.
-withArray0 :: (Storable a, RegionBaseControl IO pr)
+withArray0 :: (Storable a, RegionIOControl pr, MonadBase IO pr)
            => a
            -> [a]
            -> (forall sl. LocalPtr a (LocalRegion sl s)
@@ -222,7 +221,7 @@ withArray0 marker vals = wrapAlloca (FMA.withArray0 marker vals)
 -- | Like 'withArray', but the action gets the number of values as an additional
 -- parameter.
 withArrayLen
-  :: (Storable a, RegionBaseControl IO pr)
+  :: (Storable a, RegionIOControl pr, MonadBase IO pr)
   => [a]
   -> (forall sl. Int -> LocalPtr a (LocalRegion sl s)
      -> RegionT (Local s) pr b)
@@ -231,7 +230,7 @@ withArrayLen = wrapAlloca2 . FMA.withArrayLen
 
 -- | Like 'withArrayLen', but a terminator indicates where the array ends.
 withArrayLen0
-  :: (Storable a, RegionBaseControl IO pr)
+  :: (Storable a, RegionIOControl pr, MonadBase IO pr)
   => a
   -> [a]
   -> (forall sl. Int -> LocalPtr a (LocalRegion sl s)
