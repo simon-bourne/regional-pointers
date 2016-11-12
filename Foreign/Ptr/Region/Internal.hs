@@ -74,7 +74,7 @@ import Control.Monad.Trans.Region        ( RegionT
                                          )
 import Control.Monad.Trans.Region.Unsafe ( unsafeStripLocal
                                          , unsafeControl
-                                         , unsafeLiftBaseOp
+                                         , unsafeLiftIOOp
                                          , RegionIOControl(..)
                                          )
 
@@ -153,7 +153,7 @@ wrapAlloca :: (RegionIOControl m pr)
            => ((Ptr a -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
            -> (forall sl. LocalPtr a (LocalRegion sl s) -> RegionT (Local s) pr b)
            -> RegionT s pr b
-wrapAlloca doAlloca f = unsafeLiftBaseOp doAlloca $
+wrapAlloca doAlloca f = unsafeLiftIOOp doAlloca $
                           unsafeStripLocal . f . LocalPtr
 
 wrapAlloca2 :: (RegionIOControl m pr)
@@ -193,7 +193,7 @@ wrapWithStringLen :: (RegionIOControl m pr)
                   => (((Ptr a, Int) -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
                   -> (forall sl. (LocalPtr a (LocalRegion sl s), Int) -> RegionT (Local s) pr b)
                   -> RegionT s pr b
-wrapWithStringLen withStringLen f = unsafeLiftBaseOp withStringLen $
+wrapWithStringLen withStringLen f = unsafeLiftIOOp withStringLen $
                                       unsafeStripLocal . f . first LocalPtr
 
 
