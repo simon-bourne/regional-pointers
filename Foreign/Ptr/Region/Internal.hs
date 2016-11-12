@@ -171,7 +171,6 @@ wrapAlloca2 doAlloca f = unsafeControl $ \runInIO ->
 --------------------------------------------------------------------------------
 
 wrapPeekStringLen :: ( Pointer pointer
-                     , pr `AncestorRegion` cr
                      , MonadBase m cr
                      )
                   => ((Ptr a, Int) -> m String)
