@@ -68,7 +68,6 @@ import Control.Monad.Base                ( MonadBase, liftBase )
 import Control.Monad.Trans.Region.OnExit ( FinalizerHandle, Finalizer, onExit )
 import Control.Monad.Trans.Region        ( RegionT
                                          , RegionIOControl
-                                         , AncestorRegion
                                          , RootRegion
                                          , LocalRegion, Local
                                          , Dup(dup)
