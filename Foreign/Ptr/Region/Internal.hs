@@ -101,7 +101,7 @@ This function is unsafe because this library can't guarantee that the
 finalizer will actually finalize the pointer (suppose having @return ()@ as
 the finalizer). You have to verify the correct finalisation yourself.
 -}
-unsafeRegionalPtr :: ( region ~ RegionT s pr, MonadBase IO pr)
+unsafeRegionalPtr :: ( region ~ RegionT s pr, MonadIO pr)
                   => Ptr a
                   -> Finalizer
                   -> region (RegionalPtr a region)
@@ -150,14 +150,14 @@ newtype NullPtr a (r :: * -> *) = NullPtr (Ptr a)
 newtype LocalPtr a (r :: * -> *) = LocalPtr (Ptr a)
 
 wrapAlloca :: (RegionIOControl pr)
-           => ((Ptr a -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
+           => ((Ptr a -> IO (RegionStM (RegionT s pr) b)) -> IO (RegionStM (RegionT s pr) b))
            -> (forall sl. LocalPtr a (LocalRegion sl s) -> RegionT (Local s) pr b)
            -> RegionT s pr b
 wrapAlloca doAlloca f = unsafeLiftIOOp doAlloca $
                           unsafeStripLocal . f . LocalPtr
 
 wrapAlloca2 :: (RegionIOControl pr)
-            => ((c -> Ptr a -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
+            => ((c -> Ptr a -> IO (RegionStM (RegionT s pr) b)) -> IO (RegionStM (RegionT s pr) b))
             -> (forall sl. c -> LocalPtr a (LocalRegion sl s) -> RegionT (Local s) pr b)
             -> RegionT s pr b
 wrapAlloca2 doAlloca f = unsafeControl $ \runInIO ->
@@ -190,7 +190,7 @@ wrapNewStringLen newStringLen = unsafeControl $ \runInIO -> mask_ $ do
                                     return (rPtr, len)
 
 wrapWithStringLen :: (RegionIOControl pr)
-                  => (((Ptr a, Int) -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
+                  => (((Ptr a, Int) -> IO (RegionStM (RegionT s pr) b)) -> IO (RegionStM (RegionT s pr) b))
                   -> (forall sl. (LocalPtr a (LocalRegion sl s), Int) -> RegionT (Local s) pr b)
                   -> RegionT s pr b
 wrapWithStringLen withStringLen f = unsafeLiftIOOp withStringLen $
