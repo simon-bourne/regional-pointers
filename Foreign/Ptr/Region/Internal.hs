@@ -50,6 +50,7 @@ module Foreign.Ptr.Region.Internal
 -- from base:
 import Control.Exception                 ( mask_ )
 import Control.Monad                     ( return, liftM )
+import Control.Monad.IO.Class            ( MonadIO )
 import Control.Arrow                     ( first )
 import Data.Function                     ( ($), (.), flip )
 import Data.Int                          ( Int )
