@@ -74,6 +74,7 @@ import Control.Monad.Base                     ( MonadBase, liftBase )
 import Control.Monad.IO.Class                 ( MonadIO )
 -- from regions:
 import Control.Monad.Trans.Region             ( RegionT
+                                              , RegionIOControl
                                               , AncestorRegion
                                               , LocalRegion, Local
                                               )
