@@ -31,6 +31,7 @@ module Foreign.Marshal.Alloc.Region
 --------------------------------------------------------------------------------
 
 -- from base:
+import Control.Monad.Base                     ( MonadBase )
 import Data.Int                               ( Int )
 import Foreign.Storable                       ( Storable )
 import System.IO                              ( IO )
