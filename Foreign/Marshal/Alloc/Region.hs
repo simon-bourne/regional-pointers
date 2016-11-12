@@ -113,7 +113,7 @@ Note that: @malloc = 'mallocBytes' $ 'sizeOf' (undefined :: a)@
 This should provide a safer replacement for:
 @Foreign.Marshal.Alloc.'FMA.malloc'@.
 -}
-malloc :: (region ~ RegionT s pr, RegionIOControl pr, Storable a)
+malloc :: (region ~ RegionT s pr, RegionIOControl pr, MonadBase IO pr, Storable a)
        => region (RegionalPtr a region)
 malloc = wrapMalloc FMA.malloc
 
@@ -125,7 +125,7 @@ that fits into a memory block of the allocated size.
 This should provide a safer replacement for:
 @Foreign.Marshal.Alloc.'FMA.mallocBytes'@.
 -}
-mallocBytes :: (region ~ RegionT s pr, RegionIOControl pr)
+mallocBytes :: (region ~ RegionT s pr, RegionIOControl pr, MonadBase IO pr)
             => Int
             -> region (RegionalPtr a region)
 mallocBytes size = wrapMalloc (FMA.mallocBytes size)
