@@ -66,7 +66,7 @@ import Control.Monad.Base                ( MonadBase, liftBase )
 -- from regions:
 import Control.Monad.Trans.Region.OnExit ( FinalizerHandle, Finalizer, onExit )
 import Control.Monad.Trans.Region        ( RegionT
-                                         , RegionBaseControl
+                                         , RegionIOControl
                                          , AncestorRegion
                                          , RootRegion
                                          , LocalRegion, Local
@@ -75,7 +75,7 @@ import Control.Monad.Trans.Region        ( RegionT
 import Control.Monad.Trans.Region.Unsafe ( unsafeStripLocal
                                          , unsafeControl
                                          , unsafeLiftBaseOp
-                                         , RegionBaseControl(..)
+                                         , RegionIOControl(..)
                                          )
 
 --------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ unsafeRegionalPtr :: ( region ~ RegionT s pr, MonadBase IO pr)
 unsafeRegionalPtr ptr finalize = liftM (RegionalPtr ptr) (onExit finalize)
 
 wrapMalloc :: ( region ~ RegionT s pr
-              , RegionBaseControl IO pr
+              , RegionIOControl IO pr
               , MonadBase IO pr
               )
            => IO (Ptr a) -> region (RegionalPtr a region)
@@ -149,14 +149,14 @@ newtype NullPtr a (r :: * -> *) = NullPtr (Ptr a)
 -- Note that a @LocalPtr@ can not be 'dup'licated to a parent region.
 newtype LocalPtr a (r :: * -> *) = LocalPtr (Ptr a)
 
-wrapAlloca :: (RegionBaseControl m pr)
+wrapAlloca :: (RegionIOControl m pr)
            => ((Ptr a -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
            -> (forall sl. LocalPtr a (LocalRegion sl s) -> RegionT (Local s) pr b)
            -> RegionT s pr b
 wrapAlloca doAlloca f = unsafeLiftBaseOp doAlloca $
                           unsafeStripLocal . f . LocalPtr
 
-wrapAlloca2 :: (RegionBaseControl m pr)
+wrapAlloca2 :: (RegionIOControl m pr)
             => ((c -> Ptr a -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
             -> (forall sl. c -> LocalPtr a (LocalRegion sl s) -> RegionT (Local s) pr b)
             -> RegionT s pr b
@@ -178,7 +178,7 @@ wrapPeekStringLen :: ( Pointer pointer
 wrapPeekStringLen peekStringLen = liftBase . peekStringLen . first unsafePtr
 
 wrapNewStringLen :: ( region ~ RegionT s pr
-                    , RegionBaseControl IO pr
+                    , RegionIOControl IO pr
                     , MonadBase IO pr
                     )
                  => IO (Ptr a, Int)
@@ -189,7 +189,7 @@ wrapNewStringLen newStringLen = unsafeControl $ \runInIO -> mask_ $ do
                                     rPtr <- unsafeRegionalPtr ptr ((liftBase free) ptr)
                                     return (rPtr, len)
 
-wrapWithStringLen :: (RegionBaseControl m pr)
+wrapWithStringLen :: (RegionIOControl m pr)
                   => (((Ptr a, Int) -> m (RegionStM (RegionT s pr) b)) -> m (RegionStM (RegionT s pr) b))
                   -> (forall sl. (LocalPtr a (LocalRegion sl s), Int) -> RegionT (Local s) pr b)
                   -> RegionT s pr b
