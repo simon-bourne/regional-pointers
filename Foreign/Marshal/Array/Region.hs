@@ -149,6 +149,7 @@ allocaArray0 = wrapAlloca . FMA.allocaArray0
 -- Wraps: @Foreign.Marshal.Array.'FMA.peekArray'@.
 peekArray :: ( AllocatedPointer pointer, Storable a
              , pr `AncestorRegion` cr
+             , MonadBase IO cr
              )
           => Int -> pointer a pr -> cr [a]
 peekArray =  unsafeWrap2flp FMA.peekArray
@@ -158,6 +159,7 @@ peekArray =  unsafeWrap2flp FMA.peekArray
 -- Wraps: @Foreign.Marshal.Array.'FMA.peekArray0'@.
 peekArray0 :: ( AllocatedPointer pointer, Storable a, Eq a
               , pr `AncestorRegion` cr
+              , MonadBase IO cr
               )
            => a -> pointer a pr -> cr [a]
 peekArray0 = unsafeWrap2flp FMA.peekArray0
@@ -167,6 +169,7 @@ peekArray0 = unsafeWrap2flp FMA.peekArray0
 -- Wraps: @Foreign.Marshal.Array.'FMA.pokeArray'@.
 pokeArray :: ( AllocatedPointer pointer, Storable a
              , pr `AncestorRegion` cr
+             , MonadBase IO cr
              )
           => pointer a pr -> [a] -> cr ()
 pokeArray = unsafeWrap2 FMA.pokeArray
@@ -177,6 +180,7 @@ pokeArray = unsafeWrap2 FMA.pokeArray
 -- Wraps: @Foreign.Marshal.Array.'FMA.pokeArray0'@.
 pokeArray0 :: ( AllocatedPointer pointer, Storable a
               , pr `AncestorRegion` cr
+              , MonadBase IO cr
               )
            => a -> pointer a pr -> [a] -> cr ()
 pokeArray0 m rp xs = liftBase $ FMA.pokeArray0 m (unsafePtr rp) xs
@@ -253,6 +257,7 @@ copyArray :: ( AllocatedPointer pointer1
              , Storable a
              , pr1 `AncestorRegion` cr
              , pr2 `AncestorRegion` cr
+             , MonadBase IO cr
              )
           => pointer1 a pr1 -- ^ Destination
           -> pointer2 a pr2 -- ^ Source
@@ -270,6 +275,7 @@ moveArray :: ( AllocatedPointer pointer1
              , Storable a
              , pr1 `AncestorRegion` cr
              , pr2 `AncestorRegion` cr
+             , MonadBase IO cr
              )
           => pointer1 a pr1 -- ^ Destination
           -> pointer2 a pr2 -- ^ Source
@@ -288,6 +294,7 @@ moveArray pointer1 pointer2 = liftBase . FMA.moveArray (unsafePtr pointer1)
 -- Wraps: @Foreign.Marshal.Array.'FMA.lengthArray0'@.
 lengthArray0 :: ( AllocatedPointer pointer, Storable a, Eq a
                 , pr `AncestorRegion` cr
+                , MonadBase IO cr
                 )
              => a -> pointer a pr -> cr Int
 lengthArray0 = unsafeWrap2flp FMA.lengthArray0
