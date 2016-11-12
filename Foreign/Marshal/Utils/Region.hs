@@ -72,7 +72,7 @@ import Control.Monad.Base                     ( MonadBase, liftBase )
 
 -- from regions:
 import Control.Monad.Trans.Region             ( RegionT
-                                              , RegionBaseControl
+                                              , RegionIOControl
                                               , AncestorRegion
                                               , RootRegion
                                               , LocalRegion, Local
@@ -103,7 +103,7 @@ import Foreign.Ptr.Region.Unsafe              ( unsafePtr
 -- exception).
 --
 -- This provides a safer replacement for @Foreign.Marshal.Utils.'FMU.with'@.
-with :: (Storable a, RegionBaseControl IO pr)
+with :: (Storable a, RegionIOControl pr)
      => a -> (forall sl. LocalPtr a (LocalRegion sl s)
              -> RegionT (Local s) pr b) -- ^
      -> RegionT s pr b
@@ -114,7 +114,7 @@ with = wrapAlloca . FMU.with
 -- 'sizeOf' method from the instance of 'Storable' for the appropriate type.
 --
 -- This provides a safer replacement for @Foreign.Marshal.Utils.'FMU.new'@.
-new :: (region ~ RegionT s pr, RegionBaseControl IO pr, Storable a)
+new :: (region ~ RegionT s pr, RegionIOControl pr, Storable a)
     => a -> region (RegionalPtr a region)
 new = wrapMalloc . FMU.new
 
